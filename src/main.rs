@@ -1,42 +1,45 @@
 #[derive(Debug)]
-struct URL {
-    protocol: String,
-    hostname: String,
-    pathname: String,
+struct Github {
+    owner: String,
+    repo: String,
 }
 
-impl URL {
-    fn toString(&self) -> String {
-        format!("{}://{}/{}", self.protocol, self.hostname, self.pathname)
-    }
-
-    fn from(url: &str) -> Self {
-        let string = String::from(url);
-        let vec: Vec<&str> = string.split("://").collect();
-        let protocol = String::from(vec[0]);
-        let rest = String::from(vec[1]);
-        let vec2: Vec<&str> = rest.split("/").collect();
-        let hostname = String::from(vec2[0]);
-        let pathname: String = String::from(vec[1]);
-
-        URL {
-            protocol,
-            hostname,
-            pathname,
-        }
-    }
+#[derive(Debug)]
+struct Gitlab {
+    user: String,
+    repo: String,
 }
 
 fn main() {
-    let app = URL {
-        protocol: String::from("https"),
-        hostname: String::from("app.rust-for-js.dev"),
-        pathname: String::from("posts/07-structs-and-methods/"),
+    let github = Github {
+        owner: "rust-lang".to_string(),
+        repo: "rust".to_string(),
+    };
+    let gitlab = Gitlab {
+        user: "rust-lang".to_string(),
+        repo: "rust".to_string(),
     };
 
-    let strc = URL::from("https://cloudflare.com/people");
+    build(github);
+    build(gitlab);
+}
 
-    println!("The strc {:?}", strc);
+trait Repo {
+    fn get_clone_url(&self) -> String;
+}
 
-    println!("{}", app.toString())
+impl Repo for Github {
+    fn get_clone_url(&self) -> String {
+        format!("https://github.com/{}/{}.git", self.owner, self.repo)
+    }
+}
+impl Repo for Gitlab {
+    fn get_clone_url(&self) -> String {
+        format!("https://gitlab.com/{}/{}.git", self.user, self.repo)
+    }
+}
+
+fn build<T: Repo>(repo: T) {
+    let url = repo.get_clone_url();
+    println!("Cloning {}", url);
 }
